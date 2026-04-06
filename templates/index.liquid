@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ siteTitle }}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .posts-grid {
+      display: grid;
+      gap: 30px;
+    }
+
+    .post-card {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .post-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .post-card h2 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    .post-meta {
+      color: #999;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .post-excerpt {
+      color: #555;
+      margin-bottom: 15px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    .post-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .tag {
+      background: #f0f4ff;
+      color: #667eea;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .read-more {
+      color: #667eea;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .read-more:hover {
+      text-decoration: underline;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state h2 {
+      margin-bottom: 10px;
+    }
+
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      margin-top: 60px;
+      font-size: 14px;
+    }
+
+    .build-info {
+      font-size: 12px;
+      color: #999;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>{{ siteTitle }}</h1>
+    <p>Welcome to my blog</p>
+  </header>
+
+  <div class="container">
+    {% if posts.size > 0 %}
+      <div class="posts-grid">
+        {% for post in posts %}
+          <a href="/{{ post.slug }}/" class="post-card">
+            <h2>{{ post.title }}</h2>
+            <div class="post-meta">
+              By {{ post.author }} • {{ post.createdAt | date: "%B %d, %Y" }}
+            </div>
+            {% if post.tags.size > 0 %}
+              <div class="post-tags">
+                {% for tag in post.tags %}
+                  <span class="tag">#{{ tag }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div class="post-excerpt">
+              {{ post.contentHtml }}
+            </div>
+            <span class="read-more">Read more →</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <h2>No posts yet</h2>
+        <p>Check back soon for new content!</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Blog. All rights reserved.</p>
+    <div class="build-info">
+      Built with <a href="https://liquidjs.com" style="color: #667eea;">LiquidJS</a> | Last built: {{ buildDate | date: "%Y-%m-%d %H:%M" }}
+    </div>
+  </footer>
+</body>
+</html>
+

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Admin Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 20px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 200px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 13px;
+    }
+
+    .tags-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      min-height: 40px;
+      align-items: flex-start;
+      align-content: flex-start;
+    }
+
+    .tag {
+      background: #667eea;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+    }
+
+    .tags-input input {
+      border: none;
+      padding: 6px;
+      flex: 1;
+      min-width: 100px;
+      font-size: 14px;
+    }
+
+    .tags-input input:focus {
+      outline: none;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .posts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .post-item {
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      background: #f9f9f9;
+      transition: all 0.3s;
+    }
+
+    .post-item:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .post-title {
+      font-weight: 600;
+      color: #333;
+      font-size: 15px;
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .post-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .post-status.published {
+      background: #2ecc71;
+      color: white;
+    }
+
+    .post-status.draft {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .post-meta {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-edit {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #2980b9;
+    }
+
+    .btn-publish {
+      background: #2ecc71;
+      color: white;
+    }
+
+    .btn-publish:hover {
+      background: #27ae60;
+    }
+
+    .btn-unpublish {
+      background: #f39c12;
+      color: white;
+    }
+
+    .btn-unpublish:hover {
+      background: #d68910;
+    }
+
+    .btn-delete {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #c0392b;
+    }
+
+    .alert {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-header h2 {
+      color: #333;
+      margin: 0;
+    }
+
+    .modal-body {
+      margin-bottom: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-close {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .btn-close:hover {
+      background: #7f8c8d;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .empty-state p {
+      margin: 10px 0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(102, 126, 234, 0.3);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📝 Blog Admin Dashboard</h1>
+      <p class="subtitle">Create, edit, and manage your blog posts</p>
+    </header>
+
+    <div id="alert" class="alert"></div>
+
+    <div class="main-grid">
+      <!-- Create/Edit Post -->
+      <div class="card">
+        <h2 id="formTitle">Create New Post</h2>
+        <form id="postForm">
+          <div class="form-group">
+            <label for="title">Post Title</label>
+            <input type="text" id="title" name="title" placeholder="e.g., My First Blog Post" required>
+          </div>
+
+          <div class="form-group">
+            <label for="author">Author</label>
+            <input type="text" id="author" name="author" placeholder="e.g., John Doe">
+          </div>
+
+          <div class="form-group">
+            <label for="content">Content (Markdown)</label>
+            <textarea id="content" name="content" placeholder="Write your post content here (supports Markdown)..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="tagsInput">Tags</label>
+            <div class="tags-input" id="tagsContainer">
+              <input
+                type="text"
+                id="tagsInput"
+                placeholder="Type a tag and press Enter"
+                onkeydown="handleTagInput(event)"
+              >
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn-primary" id="submitBtn">Create Post</button>
+            <button type="reset" class="btn-primary" style="background: #95a5a6;" id="resetBtn">Clear</button>
+            <button type="button" class="btn-danger" id="cancelBtn" style="display: none;">Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Posts List -->
+      <div class="card">
+        <h2>Published Posts</h2>
+        <div id="postsList" class="posts-list">
+          <div class="loading"><span class="spinner"></span> Loading posts...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Draft Posts -->
+    <div class="card">
+      <h2>Draft Posts</h2>
+      <div id="draftsList" class="posts-list">
+        <div class="loading"><span class="spinner"></span> Loading drafts...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentEditingSlug = null;
+    let allTags = [];
+
+    // Show alert
+    function showAlert(message, type = 'success') {
+      const alert = document.getElementById('alert');
+      alert.textContent = message;
+      alert.className = `alert show ${type}`;
+      setTimeout(() => {
+        alert.classList.remove('show');
+      }, 4000);
+    }
+
+    // Handle tag input
+    function handleTagInput(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const input = e.target;
+        const tag = input.value.trim();
+
+        if (tag && !allTags.includes(tag)) {
+          allTags.push(tag);
+          renderTags();
+          input.value = '';
+        }
+      }
+    }
+
+    // Render tags
+    function renderTags() {
+      const container = document.getElementById('tagsContainer');
+      const input = container.querySelector('#tagsInput');
+      const existingTags = container.querySelectorAll('.tag');
+      existingTags.forEach(tag => tag.remove());
+
+      allTags.forEach(tag => {
+        const tagEl = document.createElement('div');
+        tagEl.className = 'tag';
+        tagEl.innerHTML = `
+          ${tag}
+          <button type="button" onclick="removeTag('${tag}')">×</button>
+        `;
+        container.insertBefore(tagEl, input);
+      });
+    }
+
+    // Remove tag
+    function removeTag(tag) {
+      allTags = allTags.filter(t => t !== tag);
+      renderTags();
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    // Load posts
+    async function loadPosts() {
+      try {
+        const response = await fetch('/api/posts');
+        const result = await response.json();
+
+        if (result.success) {
+          const posts = result.data || [];
+          const published = posts.filter(p => p.published);
+          const drafts = posts.filter(p => !p.published);
+
+          renderPostsList(published, 'postsList');
+          renderPostsList(drafts, 'draftsList');
+        }
+      } catch (error) {
+        console.error('Error loading posts:', error);
+        showAlert('Failed to load posts', 'error');
+      }
+    }
+
+    // Render posts list
+    function renderPostsList(posts, elementId) {
+      const container = document.getElementById(elementId);
+
+      if (posts.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No posts yet</p></div>';
+        return;
+      }
+
+      container.innerHTML = posts.map(post => `
+        <div class="post-item">
+          <div class="post-header">
+            <div class="post-title">${escapeHtml(post.title)}</div>
+            <span class="post-status ${post.published ? 'published' : 'draft'}">
+              ${post.published ? 'Published' : 'Draft'}
+            </span>
+          </div>
+          <div class="post-meta">
+            <strong>By ${escapeHtml(post.author || 'Anonymous')}</strong> • ${formatDate(post.createdAt)}
+            ${post.tags && post.tags.length > 0 ? `<br>${post.tags.map(t => `<span style="color: #667eea;">#${t}</span>`).join(' ')}` : ''}
+          </div>
+          <div class="post-actions">
+            <button class="btn-primary btn-small btn-edit" onclick="editPost('${post.slug}')">Edit</button>
+            ${post.published ?
+              `<button class="btn-primary btn-small btn-unpublish" onclick="unpublishPost('${post.slug}')">Unpublish</button>` :
+              `<button class="btn-primary btn-small btn-publish" onclick="publishPost('${post.slug}')">Publish</button>`
+            }
+            <button class="btn-primary btn-small btn-delete" onclick="deletePost('${post.slug}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Edit post
+    async function editPost(slug) {
+      try {
+        const response = await fetch(`/api/posts/${slug}`);
+        const result = await response.json();
+
+        if (result.success) {
+          const post = result.data;
+          document.getElementById('title').value = post.title;
+          document.getElementById('author').value = post.author || '';
+          document.getElementById('content').value = post.content;
+          allTags = post.tags || [];
+          renderTags();
+
+          currentEditingSlug = slug;
+          document.getElementById('formTitle').textContent = `Edit: ${post.title}`;
+          document.getElementById('submitBtn').textContent = 'Update Post';
+          document.getElementById('cancelBtn').style.display = 'block';
+
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } catch (error) {
+        console.error('Error loading post:', error);
+        showAlert('Failed to load post', 'error');
+      }
+    }
+
+    // Publish post
+    async function publishPost(slug) {
+      try {
+        const response = await fetch(`/api/posts/${slug}/publish`, {
+          method: 'PUT',
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert('Post published!');
+          loadPosts();
+        } else {
+          showAlert(result.error || 'Failed to publish post', 'error');
+        }
+      } catch (error) {
+        console.error('Error publishing post:', error);
+        showAlert('Failed to publish post', 'error');
+      }
+    }
+
+    // Unpublish post
+    async function unpublishPost(slug) {
+      try {
+        const response = await fetch(`/api/posts/${slug}/unpublish`, {
+          method: 'PUT',
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert('Post unpublished');
+          loadPosts();
+        } else {
+          showAlert(result.error || 'Failed to unpublish post', 'error');
+        }
+      } catch (error) {
+        console.error('Error unpublishing post:', error);
+        showAlert('Failed to unpublish post', 'error');
+      }
+    }
+
+    // Delete post
+    async function deletePost(slug) {
+      if (!confirm(`Are you sure you want to delete this post?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/posts/${slug}`, {
+          method: 'DELETE',
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert('Post deleted');
+          loadPosts();
+        } else {
+          showAlert(result.error || 'Failed to delete post', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting post:', error);
+        showAlert('Failed to delete post', 'error');
+      }
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Form submission
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value.trim();
+      const content = document.getElementById('content').value.trim();
+      const author = document.getElementById('author').value.trim();
+
+      if (!title || !content) {
+        showAlert('Please fill in title and content', 'error');
+        return;
+      }
+
+      try {
+        const data = { title, content, author, tags: allTags };
+        const method = currentEditingSlug ? 'PUT' : 'POST';
+        const url = currentEditingSlug
+          ? `/api/posts/${currentEditingSlug}`
+          : '/api/posts';
+
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert(currentEditingSlug ? 'Post updated!' : 'Post created!');
+          document.getElementById('postForm').reset();
+          allTags = [];
+          renderTags();
+          currentEditingSlug = null;
+          document.getElementById('formTitle').textContent = 'Create New Post';
+          document.getElementById('submitBtn').textContent = 'Create Post';
+          document.getElementById('cancelBtn').style.display = 'none';
+          loadPosts();
+        } else {
+          showAlert(result.error || 'Failed to save post', 'error');
+        }
+      } catch (error) {
+        console.error('Error saving post:', error);
+        showAlert('Failed to save post', 'error');
+      }
+    });
+
+    // Cancel edit
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      currentEditingSlug = null;
+      document.getElementById('postForm').reset();
+      allTags = [];
+      renderTags();
+      document.getElementById('formTitle').textContent = 'Create New Post';
+      document.getElementById('submitBtn').textContent = 'Create Post';
+      document.getElementById('cancelBtn').style.display = 'none';
+    });
+
+    // Load posts on page load
+    loadPosts();
+    setInterval(loadPosts, 5000); // Refresh every 5 seconds
+  </script>
+</body>
+</html>
+
