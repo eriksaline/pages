@@ -36,7 +36,7 @@ function publishToGitHub() {
     console.log('🧹 Cleaning branch...\n');
     const files = fs.readdirSync('.');
     for (const file of files) {
-      if (file !== '.git' && file !== '.gitignore' && file !== 'package.json' && file !== 'src' && file !== 'node_modules') {
+      if (file !== '.git' && file !== '.gitignore') {
         const fullPath = path.join('.', file);
         if (fs.lstatSync(fullPath).isDirectory()) {
           execSync(`rm -rf "${fullPath}"`, { stdio: 'inherit' });
@@ -45,6 +45,10 @@ function publishToGitHub() {
         }
       }
     }
+
+    // Copy necessary files from main branch
+    console.log('📋 Copying source files from main branch...\n');
+    execSync('git checkout main -- package.json src/', { stdio: 'inherit' });
 
     // Build the site on this branch
     console.log('🔨 Building site on gh-pages branch...\n');
