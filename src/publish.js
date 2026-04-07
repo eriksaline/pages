@@ -50,6 +50,15 @@ function publishToGitHub() {
     console.log('📋 Copying source files from main branch...\n');
     execSync('git checkout main -- package.json src/', { stdio: 'inherit' });
 
+    // Install dependencies
+    console.log('📦 Installing dependencies...\n');
+    try {
+      execSync('npm install', { stdio: 'inherit' });
+    } catch (error) {
+      console.error('❌ Failed to install dependencies:', error.message);
+      process.exit(1);
+    }
+
     // Build the site on this branch
     console.log('🔨 Building site on gh-pages branch...\n');
     execSync('npm run build', { stdio: 'inherit' });
