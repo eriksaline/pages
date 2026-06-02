@@ -7,6 +7,8 @@
     "dev": "node src/server.js",
     "build": "node src/build.js",
     "publish": "node src/publish.js",
+    "import-rss": "node src/rss-to-post.js",
+    "import-rss:publish": "node src/rss-to-post.js --publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

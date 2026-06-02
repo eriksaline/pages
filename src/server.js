@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const postManager = require('./post-manager');
+const { importNewArticles } = require('./rss-to-post');
 
 const app = express();
 const PORT = process.env.PORT || 3045;
@@ -119,6 +120,20 @@ app.put('/api/posts/:slug/unpublish', (req, res) => {
 });
 
 /**
+ * POST /api/import-rss
+ * Manually trigger RSS import
+ */
+app.post('/api/import-rss', async (req, res) => {
+  try {
+    const { publish = false, limit = 5 } = req.body;
+    const posts = await importNewArticles({ publish, limit });
+    res.json({ success: true, data: { imported: posts.length, posts } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * GET /
  * Serve the admin dashboard
  */
@@ -136,5 +151,22 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`\n✨ Blog admin dashboard running at http://localhost:${PORT}`);
   console.log(`📝 API endpoints available at http://localhost:${PORT}/api\n`);
+
+  // Optional periodic RSS import (default: every 6 hours)
+  const intervalMs = parseInt(process.env.RSS_POLL_INTERVAL || '21600000', 10);
+  if (intervalMs > 0) {
+    console.log(`📡 RSS poll scheduled every ${intervalMs / 60000} minutes`);
+    setInterval(async () => {
+      console.log('[RSS] Checking for new articles...');
+      try {
+        const posts = await importNewArticles({ publish: false, limit: 5 });
+        if (posts.length > 0) {
+          console.log(`[RSS] Imported ${posts.length} new article(s)`);
+        }
+      } catch (err) {
+        console.error(`[RSS] Poll failed: ${err.message}`);
+      }
+    }, intervalMs);
+  }
 });
 
