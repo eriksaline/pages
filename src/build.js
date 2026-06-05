@@ -85,7 +85,7 @@ async function buildPostPage(post, { prevPost = null, nextPost = null } = {}) {
 async function buildIndexPage(posts) {
   const data = {
     posts,
-    siteTitle: 'Blog',
+    siteTitle: 'Safe Waters in Tech',
     buildDate: new Date().toISOString(),
     baseUrl: BASE_URL,
   };
