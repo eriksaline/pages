@@ -33,8 +33,11 @@ async function buildSite() {
   }));
 
   // Build individual post pages
-  for (const post of postsWithHtml) {
-    const html = await buildPostPage(post);
+  for (let i = 0; i < postsWithHtml.length; i++) {
+    const post = postsWithHtml[i];
+    const prevPost = i < postsWithHtml.length - 1 ? postsWithHtml[i + 1] : null;
+    const nextPost = i > 0 ? postsWithHtml[i - 1] : null;
+    const html = await buildPostPage(post, { prevPost, nextPost });
     const postDir = path.join(DIST_DIR, post.slug);
 
     if (!fs.existsSync(postDir)) {
@@ -56,10 +59,12 @@ async function buildSite() {
 /**
  * Build a single post page
  */
-async function buildPostPage(post) {
+async function buildPostPage(post, { prevPost = null, nextPost = null } = {}) {
   const data = {
     post,
     baseUrl: BASE_URL,
+    prevPost,
+    nextPost,
   };
 
   try {
