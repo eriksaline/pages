@@ -54,9 +54,9 @@ async function fetchArticleContent(url) {
   return extractBodyText(html);
 }
 
-function fetchRssFeed() {
+async function fetchRssFeed(url) {
   return new Promise((resolve, reject) => {
-    https.get(RSS_URL, (res) => {
+    https.get(url || RSS_URL, (res) => {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => resolve(data));
@@ -93,8 +93,8 @@ function parseRss(xml) {
   return items;
 }
 
-async function getNewEntries() {
-  const xml = await fetchRssFeed();
+async function getNewEntries(url) {
+  const xml = await fetchRssFeed(url);
   const allItems = parseRss(xml);
   const imported = loadImportedEntries();
   const importedSet = new Set(imported);

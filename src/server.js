@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const postManager = require('./post-manager');
+const rssManager = require('./rss-manager');
 const { importNewArticles } = require('./rss-to-post');
 
 const app = express();
@@ -128,6 +129,62 @@ app.post('/api/import-rss', async (req, res) => {
     const { publish = false, limit = 5 } = req.body;
     const posts = await importNewArticles({ publish, limit });
     res.json({ success: true, data: { imported: posts.length, posts } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * GET /api/rss-feeds
+ * List all configured RSS feeds
+ */
+app.get('/api/rss-feeds', (req, res) => {
+  try {
+    const feeds = rssManager.getFeeds();
+    res.json({ success: true, data: feeds });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /api/rss-feeds
+ * Add a new RSS feed
+ */
+app.post('/api/rss-feeds', (req, res) => {
+  try {
+    const { url, label } = req.body;
+    if (!url) return res.status(400).json({ success: false, error: 'URL is required' });
+    const feeds = rssManager.addFeed(url, label);
+    res.status(201).json({ success: true, data: feeds });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * PUT /api/rss-feeds/:id
+ * Update an RSS feed
+ */
+app.put('/api/rss-feeds/:id', (req, res) => {
+  try {
+    const feeds = rssManager.updateFeed(req.params.id, req.body);
+    if (!feeds) return res.status(404).json({ success: false, error: 'Feed not found' });
+    res.json({ success: true, data: feeds });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * DELETE /api/rss-feeds/:id
+ * Delete an RSS feed
+ */
+app.delete('/api/rss-feeds/:id', (req, res) => {
+  try {
+    const removed = rssManager.deleteFeed(req.params.id);
+    if (!removed) return res.status(404).json({ success: false, error: 'Feed not found' });
+    res.json({ success: true, data: { deleted: true } });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

@@ -477,6 +477,26 @@
         <div class="loading"><span class="spinner"></span> Loading drafts...</div>
       </div>
     </div>
+
+    <!-- RSS Feed Manager -->
+    <div class="card" style="margin-top: 30px;">
+      <h2>📡 RSS Feeds</h2>
+      <div class="form-group">
+        <label for="rssUrl">Feed URL</label>
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="rssUrl" placeholder="https://example.com/rss" style="flex:1;">
+          <input type="text" id="rssLabel" placeholder="Label (optional)" style="flex:0.4;">
+          <button class="btn-primary" id="addRssBtn" style="flex:0 0 auto; white-space:nowrap;" onclick="addRssFeed()">Add Feed</button>
+        </div>
+      </div>
+      <div id="rssFeedsList" class="posts-list">
+        <div class="loading"><span class="spinner"></span> Loading feeds...</div>
+      </div>
+      <div style="margin-top:20px; display:flex; gap:10px; align-items:center;">
+        <button class="btn-primary" onclick="fetchAllRss()" id="fetchRssBtn">🔄 Fetch New Articles</button>
+        <span id="fetchStatus" style="font-size:13px; color:#666;"></span>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -697,6 +717,148 @@
       return text.replace(/[&<>"']/g, m => map[m]);
     }
 
+    // ── RSS Feed Management ──
+
+    let editingFeedId = null;
+
+    async function loadRssFeeds() {
+      const container = document.getElementById('rssFeedsList');
+      try {
+        const res = await fetch('/api/rss-feeds');
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error);
+        const feeds = result.data || [];
+        if (feeds.length === 0) {
+          container.innerHTML = '<div class="empty-state"><p>No RSS feeds configured</p></div>';
+          return;
+        }
+        container.innerHTML = feeds.map(f => `
+          <div class="post-item">
+            <div class="post-header">
+              <div class="post-title">${escapeHtml(f.label || f.url)}</div>
+              <span class="post-status" style="background:${f.enabled ? '#2ecc71' : '#95a5a6'};color:white;padding:4px 8px;border-radius:3px;font-size:11px;font-weight:600;">
+                ${f.enabled ? 'Active' : 'Disabled'}
+              </span>
+            </div>
+            <div class="post-meta" style="font-size:12px;color:#999;word-break:break-all;">${escapeHtml(f.url)}</div>
+            <div class="post-actions">
+              <button class="btn-primary btn-small btn-edit" onclick="editRssFeed('${f.id}')">Edit</button>
+              <button class="btn-primary btn-small btn-delete" onclick="deleteRssFeed('${f.id}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="empty-state"><p>Error: ${err.message}</p></div>`;
+      }
+    }
+
+    async function addRssFeed() {
+      const url = document.getElementById('rssUrl').value.trim();
+      const label = document.getElementById('rssLabel').value.trim();
+      if (!url) { showAlert('Please enter a feed URL', 'error'); return; }
+      try {
+        const res = await fetch('/api/rss-feeds', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, label }),
+        });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error);
+        document.getElementById('rssUrl').value = '';
+        document.getElementById('rssLabel').value = '';
+        showAlert('Feed added!');
+        loadRssFeeds();
+      } catch (err) {
+        showAlert('Failed to add feed: ' + err.message, 'error');
+      }
+    }
+
+    async function editRssFeed(id) {
+      if (editingFeedId === id) {
+        editingFeedId = null;
+        document.getElementById('addRssBtn').textContent = 'Add Feed';
+        document.getElementById('rssUrl').value = '';
+        document.getElementById('rssLabel').value = '';
+        return;
+      }
+      try {
+        const res = await fetch('/api/rss-feeds');
+        const result = await res.json();
+        const feed = (result.data || []).find(f => f.id === id);
+        if (!feed) { showAlert('Feed not found', 'error'); return; }
+        document.getElementById('rssUrl').value = feed.url;
+        document.getElementById('rssLabel').value = feed.label || '';
+        editingFeedId = id;
+        document.getElementById('addRssBtn').textContent = 'Update Feed';
+        document.getElementById('addRssBtn').onclick = () => updateRssFeed(id);
+      } catch (err) {
+        showAlert('Error: ' + err.message, 'error');
+      }
+    }
+
+    async function updateRssFeed(id) {
+      const url = document.getElementById('rssUrl').value.trim();
+      const label = document.getElementById('rssLabel').value.trim();
+      if (!url) { showAlert('Please enter a feed URL', 'error'); return; }
+      try {
+        const res = await fetch('/api/rss-feeds/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, label }),
+        });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error);
+        editingFeedId = null;
+        document.getElementById('addRssBtn').textContent = 'Add Feed';
+        document.getElementById('addRssBtn').onclick = addRssFeed;
+        document.getElementById('rssUrl').value = '';
+        document.getElementById('rssLabel').value = '';
+        showAlert('Feed updated!');
+        loadRssFeeds();
+      } catch (err) {
+        showAlert('Failed to update feed: ' + err.message, 'error');
+      }
+    }
+
+    async function deleteRssFeed(id) {
+      if (!confirm('Delete this RSS feed?')) return;
+      try {
+        const res = await fetch('/api/rss-feeds/' + id, { method: 'DELETE' });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error);
+        showAlert('Feed deleted');
+        loadRssFeeds();
+      } catch (err) {
+        showAlert('Failed to delete feed: ' + err.message, 'error');
+      }
+    }
+
+    async function fetchAllRss() {
+      const btn = document.getElementById('fetchRssBtn');
+      const status = document.getElementById('fetchStatus');
+      btn.disabled = true;
+      btn.textContent = '⏳ Fetching...';
+      status.textContent = '';
+      try {
+        const res = await fetch('/api/import-rss', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ publish: false, limit: 10 }),
+        });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error);
+        status.textContent = '✅ Imported ' + result.data.imported + ' new article(s)';
+        showAlert('Imported ' + result.data.imported + ' new article(s)!');
+        loadPosts();
+      } catch (err) {
+        status.textContent = '❌ ' + err.message;
+        showAlert('Fetch failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔄 Fetch New Articles';
+      }
+    }
+
     // Form submission
     document.getElementById('postForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -757,6 +919,7 @@
 
     // Load posts on page load
     loadPosts();
+    loadRssFeeds();
     setInterval(loadPosts, 5000); // Refresh every 5 seconds
   </script>
 </body>
