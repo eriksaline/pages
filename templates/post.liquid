@@ -198,7 +198,7 @@
 <body>
   <header>
     <div class="header-content">
-      <a href="/" class="back-link">← Back to Blog</a>
+      <a href="{{ baseUrl }}/" class="back-link">← Back to Blog</a>
       <h1>{{ post.title }}</h1>
       <div class="post-meta">
         By {{ post.author }} • Published on {{ post.createdAt | date: "%B %d, %Y" }}

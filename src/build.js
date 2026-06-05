@@ -5,6 +5,7 @@ const engine = require('./template-engine');
 const markdownToHtml = require('./markdown-to-html');
 
 const DIST_DIR = path.join(__dirname, '../dist');
+const BASE_URL = process.env.BASE_URL || '';
 
 // Ensure dist directory exists
 function ensureDistDir() {
@@ -58,6 +59,7 @@ async function buildSite() {
 async function buildPostPage(post) {
   const data = {
     post,
+    baseUrl: BASE_URL,
   };
 
   try {
@@ -80,6 +82,7 @@ async function buildIndexPage(posts) {
     posts,
     siteTitle: 'Blog',
     buildDate: new Date().toISOString(),
+    baseUrl: BASE_URL,
   };
 
   try {

@@ -149,7 +149,7 @@
     {% if posts.size > 0 %}
       <div class="posts-grid">
         {% for post in posts %}
-          <a href="/{{ post.slug }}/" class="post-card">
+          <a href="{{ baseUrl }}/{{ post.slug }}/" class="post-card">
             <h2>{{ post.title }}</h2>
             <div class="post-meta">
               By {{ post.author }} • {{ post.createdAt | date: "%B %d, %Y" }}
